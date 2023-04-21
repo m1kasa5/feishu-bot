@@ -29,7 +29,10 @@ type Config struct {
 
 func LoadConfig(cfg string) *Config {
 	viper.SetConfigFile(cfg)
-	//viper.ReadConfig()
+	err := viper.ReadInConfig()
+	if err != nil { // Handle errors reading the config file
+		panic(fmt.Errorf("fatal error config file: %w", err))
+	}
 	viper.AutomaticEnv()
 	config := &Config{
 		FeishuAppId:                getViperStringValue("APP_ID", ""),

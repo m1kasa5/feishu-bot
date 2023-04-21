@@ -1,13 +1,21 @@
 package main
 
-import "github.com/spf13/pflag"
+import (
+	"feishu-bot/initialization"
+	"fmt"
+	"github.com/spf13/pflag"
+)
 
 var (
-	_ = pflag.StringP("config", "c", "./config.yaml", "apiserver config path")
+	cfg = pflag.StringP("config", "c", "./config.yaml", "apiserver config path")
 )
 
 func main() {
 	pflag.Parse()
+	config := initialization.LoadConfig(*cfg)
+	fmt.Println(config.AzureApiVersion)
+	initialization.LoadLarkClient(*config)
+	//gpt := openai.NewChatGPT(*config)
 }
 
 // git remote set-url origin https://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/@github.com
