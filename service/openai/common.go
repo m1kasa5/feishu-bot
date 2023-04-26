@@ -1,6 +1,9 @@
 package openai
 
-import "feishu-bot/service/loadbalancer"
+import (
+	"feishu-bot/initialization"
+	"feishu-bot/service/loadbalancer"
+)
 
 type PlatForm string
 
@@ -20,11 +23,12 @@ type AzureConfig struct {
 }
 
 type ChatGPT struct {
-	Lb          *loadbalancer.LoadBalancer
-	ApiKey      []string
-	ApiUrl      string
-	HttpProxy   string
-	Platform    PlatForm
+	Lb        *loadbalancer.LoadBalancer
+	ApiKey    []string
+	ApiUrl    string
+	HttpProxy string
+	Platform  PlatForm
+
 	AzureConfig AzureConfig
 }
 
@@ -37,3 +41,32 @@ const (
 
 	nilBody
 )
+
+func NewChatGPT(config initialization.Config) *ChatGPT {
+	var lb *loadbalancer.LoadBalancer
+	if config.AzureOn {
+		keys := []string{config.AzureOpenaiToken}
+		lb = loadbalancer.NewLoadBalancer(keys)
+	} else {
+		lb = loadbalancer.NewLoadBalancer(config.OpenaiApiKeys)
+	}
+
+	platform := OpenAI
+	if config.AzureOn {
+		platform = Azure
+	}
+	return &ChatGPT{
+		Lb:        lb,
+		ApiKey:    config.OpenaiApiKeys,
+		ApiUrl:    config.OpenaiApiUrl,
+		HttpProxy: config.HttpProxy,
+		Platform:  platform,
+		AzureConfig: AzureConfig{
+			BaseURL:        AzureApiUrlV1,
+			ResourceName:   config.AzureResourceName,
+			DeploymentName: config.AzureDeploymentName,
+			ApiVersion:     config.AzureApiVersion,
+			ApiToken:       config.AzureOpenaiToken,
+		},
+	}
+}

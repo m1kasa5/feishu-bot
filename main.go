@@ -16,6 +16,7 @@ func main() {
 	fmt.Println(config.AzureApiVersion)
 	initialization.LoadLarkClient(*config)
 	//gpt := openai.NewChatGPT(*config)
+	//handlers.
 }
 
 // git remote set-url origin https://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/@github.com
