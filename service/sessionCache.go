@@ -3,6 +3,7 @@ package service
 import (
 	"feishu-bot/service/openai"
 	"github.com/patrickmn/go-cache"
+	"time"
 )
 
 type SessionMode string
@@ -48,7 +49,6 @@ type SessionServiceCacheInterface interface {
 var sessionServices *SessionService
 
 func (s *SessionService) Get(sessionId string) *SessionMeta {
-	//TODO implement me
 	sessonCtx, ok := s.cache.Get(sessionId)
 
 	if !ok {
@@ -59,13 +59,17 @@ func (s *SessionService) Get(sessionId string) *SessionMeta {
 }
 
 func (s *SessionService) Set(sessionId string, sessionMeta *SessionMeta) {
-	//TODO implement me
-	panic("implement me")
+	maxCacheTime := 12 * time.Hour
+	s.cache.Set(sessionId, sessionMeta, maxCacheTime)
 }
 
 func (s *SessionService) GetMsg(sessionId string) []openai.Messages {
-	//TODO implement me
-	panic("implement me")
+	sessionCtx, ok := s.cache.Get(sessionId)
+	if !ok {
+		return nil
+	}
+	sessionMeta := sessionCtx.(*SessionMeta)
+	return sessionMeta.Msg
 }
 
 func (s *SessionService) SetMsg(sessionId string, msg []openai.Messages) {
